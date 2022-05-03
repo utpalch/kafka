@@ -1,0 +1,57 @@
+1. Start Zookeeper
+/opt/homebrew/opt/kafka/bin/zookeeper-server-start /opt/homebrew/etc/kafka/zookeeper.properties
+
+2. Start KAFKA:
+
+#For every replicas, need to create server-<<>>.properties and update below entries.
+
+   broker.id=1
+   listeners=PLAINTEXT://localhost:9093/9094/9095
+   log.dirs=c:/kafka/kafka-logs-<<>>
+   auto.create.topics.enable=false (optional)
+
+   Check and fix if the below property is not available
+
+   port=<<>>
+   advertised.host.name=localhost
+
+
+/opt/homebrew/opt/kafka/bin/kafka-server-start /opt/homebrew/etc/kafka/server-1.properties
+
+/opt/homebrew/opt/kafka/bin/kafka-server-start /opt/homebrew/etc/kafka/server-2.properties
+
+/opt/homebrew/opt/kafka/bin/kafka-server-start /opt/homebrew/etc/kafka/server-3.properties
+
+
+3. Stop KAFKA:
+
+/opt/homebrew/opt/kafka/bin/kafka-server-stop /opt/homebrew/etc/kafka/server-1.properties
+
+/opt/homebrew/opt/kafka/bin/kafka-server-stop /opt/homebrew/etc/kafka/server-2.properties
+
+/opt/homebrew/opt/kafka/bin/kafka-server-stop /opt/homebrew/etc/kafka/server-3.properties
+
+
+4. Create TOPIC:
+#zookeeper is deprecated, use --bootstrap-server instead
+
+#TOPIC 1
+kafka-topics --create --bootstrap-server localhost:9093 --replication-factor 3 --partitions 5 --config min.insync.replicas=2 --topic chandafamily-1
+
+#TOPIC 2
+kafka-topics --create --bootstrap-server localhost:9093 --replication-factor 3 --partitions 5 --config min.insync.replicas=2 --topic chandafamily-2
+
+
+
+5. REMOVE TOPIC
+cd /opt/homebrew/opt/kafka/bin
+
+kafka-topics --bootstrap-server localhost:9092 --delete --topic chandafamily_1
+kafka-topics --bootstrap-server localhost:9092 --delete --topic chandafamily_2
+
+6. Initialize Consumer console:
+
+#The --include command mentiones the topic that will be consumed
+
+kafka-console-consumer --bootstrap-server localhost:9093 --from-beginning --include "chandafamily-1|chandafamily-2"
+
