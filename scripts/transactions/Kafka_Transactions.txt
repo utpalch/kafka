@@ -55,3 +55,168 @@ kafka-topics --bootstrap-server localhost:9092 --delete --topic chandafamily_2
 
 kafka-console-consumer --bootstrap-server localhost:9093 --from-beginning --include "chandafamily-1|chandafamily-2"
 
+
+==========
+
+CAP Therem
+
+Partition Tolerence (isolated data)	: Data not syncped up betwen Distibuted system
+Consistency 		(same data)		: 
+Availability  		(some data) 	: Availble but can get wrong data bacause of partition issue
+
+Mongodb : CP
+Oracle : CA
+casandra , Amazon , Cough : AP
+
+Paxos Algorithm:
+
+SOLID
+
+Single responsibility
+
+Open-closed Principle
+
+Liskov : Objects of a superclass shall be replaceable with objects of its subclasses without breaking the application
+
+Interface Segregation Principle : Should not create interface if not used. or shd npt depend on methid that it will not use.
+
+Dependency Inversion Principle : Entities must depend on abstractions, not on concretions. It states that the high-level module must not depend on the low-level module, but they should depend on abstractions.
+
+Event Driven
+	Orchestrattion
+		Command to control MS call
+		Wait for other service to compelte call
+		tight coupling
+	Choregraph
+		Decoupling
+		Individual MS can run independently
+		Event bus to contrl
+		state of the service out of sync for some time
+
+	KAFKA AS EVENT BUS
+
+KAFKA : Its messaging broker. It is distributed realtime streaming, fault tolerant and horizontal scalable.
+
+
+KAFKA PRODUCER
+
+	Optional Partition Key
+
+		IF KEY IS PRESENT, USING HASHING ALGORITHM
+		ELSE USE ROUND ROBIN FOR PARTITIONING
+
+	Partition Strategy:
+
+
+	Timestamp:
+		Create Time : When message is produced 
+		Log Append Time : Whn message is received in broker
+
+		Can use only one approach.
+
+		message.timestamp.size
+
+	Send: usage buffering
+		Asynchronous
+		Network Optimiztion
+
+		Use background I/O thread and add combine multiple records for diff thread to same buffer.
+
+		I/O thread timeout
+		Default Producer RAM usage is 32MB.
+		Change memory usage by adding buffer.memory configuration. (topic config)
+
+		Retry producer configuration
+
+	Producer is threadsafe.
+
+Advanced Producer
+		
+
+	1. KAFKA Exactly Once (Idempotence)
+		Message commit : Once leader receives and follower pulls from leader.
+
+		Producer Retry: (ATleast once)
+			Producer doesn't get acknowledgement from I/O from broker.
+			Broker stores message and sends response, but there is network error
+			Broker stores message and sends response, but Producer timedout.
+
+		Without retry: 	
+			At most once
+
+		Exactly Once:
+			Idempotence Producer Configuration
+			enable.idempotence=true	
+		
+			Enable internal id for producer instance
+				Perform initial handshake with leader broker and ask for unique producer id.
+				Broker dynmaically assign uniqued id to each producer.
+			Message Sequence Number
+				Producer will assign unique sequence number to each message.
+				Starts with zero and increase per partition.	
+
+			When the request is send, broker knows the duplicate and missing sequence number. 	
+
+		Issue :
+			Sending duplicate message at application level, System can't guarantee duplicate method.
+			Idempotence guarantees for the producer retry.
+			Will work in the cass retry happnes in the producer try and not application retry.
+	
+	2. Transaction Producer
+	
+		Supports atomicity. All messages are writen to all partition or none.		
+
+		precondition
+			replication factor for each topic shd be >= 3
+			min.insync.replicas >= 2
+
+			Add below command while creating topic
+			--config min.insync.replicas = 2
+
+			Enable TRANSACTIONAL_ID_CONFIG in in Kafka ProducerConfig. 
+			The transaction id shd be unique for each Producer instance. If you run 2 producer instance, the TRANSACTIONAL_ID_CONFIG shd be diff.
+
+		e.g. create 2 topic
+
+
+
+KAFKA STREAM
+	java application
+	unbounded
+	No need to create cluster
+	highly scalable, elastic and fault toleranr
+	Exactly once
+	One record at a time
+	Sits betwwen query and batch process
+
+	Design
+		Identify and model events
+
+
+Architecture
+
+	Only one controller , controller is same as broker
+	Zookeper acts a database to keep kafka conttoller information.
+
+	Kafa broker maneges 2 task , loeader and follower partitiion.
+
+
+Communication
+	Producer request for metadata from anuy broker.
+	producer conencts to broker for a leader.
+
+	follower broker only job is to synup with leader so that it can become leader.
+
+	Leader have addtional job and keep track of followers and In Sync Replica and kept in zookeper
+
+	Defaukt value of nto to far is 10 sec (to verify in sync)
+
+	commited vs uncommited message
+
+	commited : Syncup and available in follwers.
+
+		After producer receives acknow, the messages are commited.
+		For uncommited message, the producer can resend.
+
+		Optional Min replicas : if the min replica is less than availab le replica (replica machine crashes), broker will not take request
+
