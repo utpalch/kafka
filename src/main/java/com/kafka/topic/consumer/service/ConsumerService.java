@@ -59,7 +59,7 @@ public class ConsumerService {
                     consumerDTO.setRecordKey(record.key());
                     consumerDTO.setRecordvalue(record.value());
 
-                    offSetDAO.updateOffsetAndRequest(consumerDTO);
+                    offSetDAO.populateRequest(consumerDTO);
                 }
             } while (recordCount > 0);
 

@@ -6,7 +6,7 @@ import java.sql.*;
 
 public class OffSetDAO {
 
-    private static final String POPULATE_DEFAULT_OFFSET_SQL = "insert into partition_offsets (offset, topic, partition) values(offset.nextval, ? , ?)";
+    private static final String POPULATE_DEFAULT_OFFSET_SQL = "insert into partition_offsets (offset, topic, partition) values(1, ? , ?)";
     private static final String GET_OFFSET_SQL = "select offset from partition_offsets where topic_name=? and partition=?";
     private static final String UPDATE_PARTITION_OFFSET_SQL = "update partition_offsets set offset=? where topic_name=? and partition=?";
     private static final String POPULATE_REQUEST_SQL = "insert into transaction_data (transaction_id , transaction_data) values(?,?)";
@@ -39,7 +39,12 @@ public class OffSetDAO {
         return offset;
     }
 
-    public void updateOffsetAndRequest(ConsumerDTO consumerDTO) throws Exception{
+    /**
+     * System will populate request details and update partition offset.
+     * @param consumerDTO The {@link ConsumerDTO} instance.
+     * @throws Exception
+     */
+    public void populateRequest(ConsumerDTO consumerDTO) throws Exception{
 
         Connection con = null;
         PreparedStatement psInsert = null;
@@ -79,7 +84,6 @@ public class OffSetDAO {
         try {
             con = getConnection();
             psInsert = con.prepareStatement(POPULATE_DEFAULT_OFFSET_SQL);
-            //psInsert.setLong(1, 0);
             psInsert.setString(2, topic);
             psInsert.setInt(3, partition);
 
@@ -94,10 +98,10 @@ public class OffSetDAO {
     }
 
     private Connection getConnection() throws ClassNotFoundException, SQLException {
-        //Class.forName("com.mysql.jdbc.Driver");
-        //return DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "mypassword");
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-        return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","system","oracle");
+        Class.forName("com.mysql.jdbc.Driver");
+        return DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "system", "mysql");
+        //Class.forName("oracle.jdbc.driver.OracleDriver");
+        //return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","system","oracle");
     }
     private void closeCursor(ResultSet rs) throws SQLException {
         if (null != rs) {
