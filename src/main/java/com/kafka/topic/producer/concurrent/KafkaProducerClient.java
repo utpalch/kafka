@@ -1,11 +1,8 @@
-package com.kafka.million.transaction;
+package com.kafka.topic.producer.concurrent;
 
-import com.kafka.million.KafkaConfig;
-import com.kafka.million.concurrent.producer.KafkaProducerExecutor;
-import com.kafka.million.concurrent.producer.TopicEntity;
+import com.kafka.topic.producer.utils.KafkaConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -19,34 +16,35 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class KafkaTransactionProducerClient {
+public class KafkaProducerClient {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-        LOGGER.info("Starting  KafkaTransaction ProducerClient ");
+        LOGGER.info("Starting  KafkaProducerClient ");
 
+        ThreadPoolExecutor executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(2);
         KafkaProducer<Integer , String> producer = new KafkaProducer<Integer, String>(getKafkaProperties());
 
-        producer.initTransactions();
-        producer.beginTransaction();
-        try {
-            LOGGER.info("Begining  KafkaTransaction ");
+        List<Future<TopicEntity>> resultList = new ArrayList<>();
 
-            for (int i = 0; i < 2; i++) {
-                producer.send(new ProducerRecord<>(KafkaConfig.TRAN_TOPIC_NAME_1 , i , "simple message topic 1 =>" + 1));
-                producer.send(new ProducerRecord<>(KafkaConfig.TRAN_TOPIC_NAME_2 , i , "simple message topic 2 =>" + 1));
-            }
-            producer.commitTransaction();
-            LOGGER.info("Comitting  KafkaTransaction ");
+        for (int i = 0; i < 2; i++) {
+            TopicEntity entity = new TopicEntity();
+            entity.setProducer(producer);
+            entity.setTopic(KafkaConfig.topicName);
+            entity.setFile("data/FILE_"+(i+1)+".csv");
 
-        }catch (Exception ex){
-            producer.abortTransaction();
-            ex.printStackTrace();
-        }finally {
-            producer.close();
-            LOGGER.info("Complete  KafkaTransaction ProducerClient ");
+            KafkaProducerExecutor producerExecutor  = new KafkaProducerExecutor(entity);
+            Future<TopicEntity> results  = executor.submit(producerExecutor);
         }
+
+        for (Future<TopicEntity> future: resultList) {
+            TopicEntity currentEntity = future.get();
+
+            LOGGER.info("Future result for " +currentEntity.getFile() + " and task status is " + future.isDone());
+        }
+        LOGGER.info("Complete KafkaProducerClient ");
+
     }
 
     private static Properties getKafkaProperties(){
@@ -55,8 +53,6 @@ public class KafkaTransactionProducerClient {
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG , KafkaConfig.bootstrapServers);//broker server config
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());//
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());//
-        properties.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG , KafkaConfig.TRANSACTION_ID);
-
         return properties;
     }
 }

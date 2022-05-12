@@ -1,10 +1,12 @@
-package com.work.kafka.consumer;
+package com.kafka.topic.consumer.service;
 
+import com.kafka.topic.consumer.model.ConsumerDTO;
+import com.kafka.topic.consumer.dao.OffSetDAO;
+import com.kafka.topic.consumer.util.ConsumerConfigUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
-import work.kafka.consumer.utils.ConsumerConfigUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ConsumerService {
 

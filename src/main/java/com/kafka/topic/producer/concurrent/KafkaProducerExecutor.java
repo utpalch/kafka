@@ -1,4 +1,4 @@
-package com.kafka.million.concurrent.producer;
+package com.kafka.topic.producer.concurrent;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.logging.log4j.LogManager;

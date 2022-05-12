@@ -1,8 +1,8 @@
-package com.work.kafka.consumer;
+package com.kafka.topic.consumer.service;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import work.kafka.consumer.utils.ConsumerConfigUtils;
+import com.kafka.topic.consumer.util.ConsumerConfigUtils;
 
 import java.util.List;
 

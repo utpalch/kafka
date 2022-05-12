@@ -1,4 +1,4 @@
-package com.kafka.million;
+package com.kafka.topic.producer.utils;
 
 public final class KafkaConfig {
     public final static String applicationID = "ChandaFamilyProducer";

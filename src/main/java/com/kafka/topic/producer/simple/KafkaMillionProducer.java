@@ -1,6 +1,6 @@
-package com.kafka.million.producer;
+package com.kafka.topic.producer.simple;
 
-import com.kafka.million.KafkaConfig;
+import com.kafka.topic.producer.utils.KafkaConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;

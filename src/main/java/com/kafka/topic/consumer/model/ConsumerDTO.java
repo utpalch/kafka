@@ -1,4 +1,4 @@
-package com.work.kafka.consumer;
+package com.kafka.topic.consumer.model;
 
 public class ConsumerDTO {
 

@@ -1,4 +1,6 @@
-package com.work.kafka.consumer;
+package com.kafka.topic.consumer.dao;
+
+import com.kafka.topic.consumer.model.ConsumerDTO;
 
 import java.sql.*;
 
