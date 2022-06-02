@@ -30,9 +30,9 @@ public class PosStreamConsumerApp {
         KStream<String, PosInvoice> KS0 = builder.stream(SteamAppConfig.posTopicName,
                 Consumed.with(AppSerdes.String(), AppSerdes.PosInvoice()));
 
-        filterAndSendToShipmentTopic(KS0);
+        filterAndBuildShipmentTopic(KS0);
 
-        filterAndSendToNotificationTopic(KS0);
+        filterAndBuildNotificationTopic(KS0);
 
         KafkaStreams streams = new KafkaStreams(builder.build(), properties);
         streams.start();
@@ -44,14 +44,14 @@ public class PosStreamConsumerApp {
 
     }
 
-    private void filterAndSendToShipmentTopic(KStream<String, PosInvoice> KS0){
+    private void filterAndBuildShipmentTopic(KStream<String, PosInvoice> KS0){
         KS0.filter((k, v) ->
                         v.getDeliveryType().equalsIgnoreCase(SteamAppConfig.DELIVERY_TYPE_HOME_DELIVERY))
                 .to(SteamAppConfig.shipmentTopicName, Produced.with(AppSerdes.String(), AppSerdes.PosInvoice()));
     }
 
 
-    private void filterAndSendToNotificationTopic(KStream<String, PosInvoice> KS0){
+    private void filterAndBuildNotificationTopic(KStream<String, PosInvoice> KS0){
         KS0.filter((k, v) ->
                         v.getCustomerType().equalsIgnoreCase(SteamAppConfig.CUSTOMER_TYPE_PRIME))
                 .mapValues(invoice -> getNotification(invoice))
