@@ -1,7 +1,5 @@
 package com.kafka.topic.stream.receiver;
 
-import java.util.Properties;
-
 import com.kafka.topic.stream.model.Notification;
 import com.kafka.topic.stream.model.PosInvoice;
 import com.kafka.topic.stream.serdes.AppSerdes;
@@ -14,6 +12,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Properties;
 
 public class PosStreamConsumerApp {
 
@@ -63,6 +63,8 @@ public class PosStreamConsumerApp {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, SteamAppConfig.applicationID);
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, SteamAppConfig.bootstrapServers);
+        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG , 3);
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE);
         return props;
     }
 
